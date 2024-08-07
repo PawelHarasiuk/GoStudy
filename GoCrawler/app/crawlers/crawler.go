@@ -4,7 +4,6 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"regexp"
 )
 
 func GetHtml(urlString string) (string, error) {
@@ -19,11 +18,4 @@ func GetHtml(urlString string) (string, error) {
 		return "", err
 	}
 	return string(html), nil
-}
-
-func Find(html string) ([]string, error) {
-	emailRegex := "\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b"
-	re := regexp.MustCompile(emailRegex)
-	emails := re.FindAllString(html, -1)
-	return emails, nil
 }
