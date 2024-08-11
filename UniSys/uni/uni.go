@@ -7,14 +7,17 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sync"
 	"time"
 )
 
 func Export(inputPath, outputPath, format string) {
 	records, err := readFile(inputPath)
 	if err != nil {
+		fmt.Println(err)
 		return
 	}
+
 	university := createUniversity(records)
 	var bytes []byte
 	switch format {
@@ -27,29 +30,50 @@ func Export(inputPath, outputPath, format string) {
 }
 
 func createStudents(records [][]string) []data.Student {
-	students := make([]data.Student, 0)
+	studentsMap := make(map[string]data.Student)
+
 	for _, record := range records {
+		indexNumber, firstName, lastName, email, mothersName, fathersName := record[4], record[0], record[1], record[6], record[7], record[8]
+		birthdate, err := time.Parse("2006-01-02", record[5])
+		if err != nil {
+			fmt.Println("wrong date")
+			continue
+		}
+		studies := data.Studies{
+			Name: record[2],
+			Mode: record[3],
+		}
+
+		index := firstName + "_" + lastName + "_" + indexNumber
+		_, present := studentsMap[index]
+
 		if !isRecordValid(record) {
+			logError("record invalid " + index)
+			continue
+		}
+		if present {
+			logError("student already exists " + index)
 			continue
 		}
 
 		student := data.Student{
-			IndexNumber: record[4],
-			FirstName:   record[0],
-			LastName:    record[1],
-			Birthdate:   time.Time{},
-			Email:       record[6],
-			MothersName: record[7],
-			FathersName: record[8],
-			Studies: data.Studies{
-				Name: record[2],
-				Mode: record[3],
-			},
+			IndexNumber: indexNumber,
+			FirstName:   firstName,
+			LastName:    lastName,
+			Birthdate:   birthdate,
+			Email:       email,
+			MothersName: mothersName,
+			FathersName: fathersName,
+			Studies:     studies,
 		}
 
-		students = append(students, student)
+		studentsMap[index] = student
 	}
 
+	students := make([]data.Student, 0)
+	for _, student := range studentsMap {
+		students = append(students, student)
+	}
 	return students
 }
 
@@ -70,8 +94,23 @@ func createActiveStudies(records [][]string) []data.ActiveStudies {
 }
 
 func createUniversity(records [][]string) data.University {
-	students := createStudents(records)
-	activeStudies := createActiveStudies(records)
+	var wg sync.WaitGroup
+	var students []data.Student
+	var activeStudies []data.ActiveStudies
+
+	wg.Add(2)
+	go func() {
+		students = createStudents(records)
+		wg.Done()
+	}()
+
+	go func() {
+		activeStudies = createActiveStudies(records)
+		wg.Done()
+	}()
+
+	wg.Wait()
+
 	university := data.University{
 		CreatedAt:     time.Now(),
 		Author:        "Me",
@@ -125,4 +164,18 @@ func jsonify(university data.University) []byte {
 		fmt.Println(err)
 	}
 	return marshal
+}
+
+func logError(message string) {
+	create, err := os.OpenFile("logs/logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	_, err = io.WriteString(create, message+"\n")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
