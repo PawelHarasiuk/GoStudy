@@ -166,6 +166,7 @@ func jsonify(university data.University) []byte {
 	return marshal
 }
 
+// inefficient
 func logError(message string) {
 	create, err := os.OpenFile("logs/logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
