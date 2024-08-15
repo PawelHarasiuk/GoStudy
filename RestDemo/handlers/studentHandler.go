@@ -8,7 +8,10 @@ import (
 	"net/http"
 )
 
-var Students = repositories.Load()
+var repository = repositories.NewRepository(repositories.CsvRepository{
+	Path: "data/dane.csv",
+})
+var Students = repository.RepositoryHandler.Load()
 
 func GetStudents(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
@@ -20,7 +23,6 @@ func GetStudents(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	repositories.Save(Students)
 }
 
 func GetStudent(w http.ResponseWriter, r *http.Request) {
@@ -39,8 +41,7 @@ func GetStudent(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
-	fmt.Fprintln(w, "no student")
+	http.Error(w, "Student do no exists", 401)
 }
 
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
@@ -48,7 +49,7 @@ func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong request", 400)
 		return
 	}
-	defer repositories.Save(Students)
+	defer repository.RepositoryHandler.Save(Students)
 	id := r.URL.Query().Get("id")
 	for _, student := range Students {
 		if student.Id == id {
@@ -64,8 +65,8 @@ func CreateStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong request", 400)
 		return
 	}
+	defer repository.RepositoryHandler.Save(Students)
 
-	defer repositories.Save(Students)
 	var newStudent models.Student
 
 	if err := json.NewDecoder(r.Body).Decode(&newStudent); err != nil {
@@ -88,7 +89,8 @@ func UpdateStudent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Wrong request", 400)
 		return
 	}
-	defer repositories.Save(Students)
+	defer repository.RepositoryHandler.Save(Students)
+
 	var newStudent models.Student
 
 	if err := json.NewDecoder(r.Body).Decode(&newStudent); err != nil {

@@ -8,11 +8,13 @@ import (
 	"time"
 )
 
-var path = "data/dane.csv"
+type CsvRepository struct {
+	Path string
+}
 
-func Load() map[string]models.Student {
+func (repository CsvRepository) Load() map[string]models.Student {
 	students := make(map[string]models.Student)
-	open, err := os.Open(path)
+	open, err := os.Open(repository.Path)
 	if err != nil {
 		return nil
 	}
@@ -39,8 +41,8 @@ func Load() map[string]models.Student {
 	return students
 }
 
-func Save(students map[string]models.Student) {
-	open, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+func (repository CsvRepository) Save(students map[string]models.Student) {
+	open, err := os.OpenFile(repository.Path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		fmt.Println(err)
 		return
