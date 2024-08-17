@@ -1,12 +1,12 @@
 package repositories
 
-import (
-	"RestDemo/models"
-)
+import "RestDemo/models"
 
 type RepositoryHandler interface {
-	Load() map[string]models.Student
-	Save(students map[string]models.Student)
+	GetStudents() ([]models.Student, error)
+	UpdateStudent(student models.Student) error
+	CreateStudent(student models.Student) error
+	DeleteStudent(student models.Student) error
 }
 
 type Repository struct {

@@ -1,66 +1,112 @@
 package repositories
 
 import (
+	"RestDemo/helpers"
 	"RestDemo/models"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"os"
-	"time"
 )
 
 type CsvRepository struct {
 	Path string
 }
 
-func (repository CsvRepository) Load() map[string]models.Student {
-	students := make(map[string]models.Student)
-	open, err := os.Open(repository.Path)
-	if err != nil {
-		return nil
+func (repository CsvRepository) GetStudents() ([]models.Student, error) {
+	students := helpers.CreateStudents(repository.Path)
+	if len(students) == 0 {
+		return make([]models.Student, 0), errors.New("students not found")
 	}
-	reader := csv.NewReader(open)
-	records, err := reader.ReadAll()
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	for _, record := range records {
-		id, firstName, lastName := record[0], record[1], record[2]
-		birthday, err := time.Parse("02.01.2006 15:04:05", record[3])
-		if err != nil {
-			fmt.Printf("error %v", err)
-		}
-		student := models.Student{
-			Id:        id,
-			FirstName: firstName,
-			LastName:  lastName,
-			Birthdate: birthday,
-		}
-		students[id] = student
-	}
-	return students
+	return students, nil
 }
 
-func (repository CsvRepository) Save(students map[string]models.Student) {
-	open, err := os.OpenFile(repository.Path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+func (repository CsvRepository) UpdateStudent(newStudent models.Student) error {
+	records := helpers.ReadRecords(repository.Path)
+
+	file, err := os.Create(repository.Path)
 	if err != nil {
-		fmt.Println(err)
-		return
+		mess := fmt.Sprintf("Cant find file: %v", err)
+		return errors.New(mess)
 	}
-	defer open.Close()
-	writer := csv.NewWriter(open)
-	for id, student := range students {
-		record := []string{
-			id,
-			student.FirstName,
-			student.LastName,
-			student.Birthdate.Format("02.01.2006 15:04:05"),
-		}
-		err := writer.Write(record)
-		writer.Flush()
-		if err != nil {
-			fmt.Println(err)
-			return
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+	seen := false
+	for i, record := range records {
+		id := record[0]
+		if id == newStudent.Id {
+			firstName, lastName := newStudent.FirstName, newStudent.LastName
+			birthdate := helpers.DateToString(newStudent.Birthdate)
+			records[i][1] = firstName
+			records[i][2] = lastName
+			records[i][3] = birthdate
+			seen = true
+			break
 		}
 	}
+	if !seen {
+		return errors.New("student not found")
+	}
+	err = writer.WriteAll(records)
+	if err != nil {
+		mess := fmt.Sprintf("Cant write student to file: %v", err)
+		return errors.New(mess)
+	}
+	return nil
+}
+
+func (repository CsvRepository) CreateStudent(newStudent models.Student) error {
+	file, err := os.OpenFile(repository.Path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0666)
+	if err != nil {
+		mess := fmt.Sprintf("Cant find file: %v", err)
+		return errors.New(mess)
+	}
+
+	birthdate := helpers.DateToString(newStudent.Birthdate)
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	err = writer.Write([]string{
+		newStudent.Id,
+		newStudent.FirstName,
+		newStudent.LastName,
+		birthdate,
+	})
+
+	if err != nil {
+		mess := fmt.Sprintf("Cant write student to file: %v", err)
+		return errors.New(mess)
+	}
+
+	return nil
+}
+
+func (repository CsvRepository) DeleteStudent(oldStudent models.Student) error {
+	records := helpers.ReadRecords(repository.Path)
+	file, err := os.Create(repository.Path)
+	if err != nil {
+		mess := fmt.Sprintf("Cant find file: %v", err)
+		return errors.New(mess)
+	}
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	seen := false
+	for i, record := range records {
+		id := record[0]
+		if id == oldStudent.Id {
+			records = append(records[:i], records[i+1:]...)
+			seen = true
+			break
+		}
+	}
+	if !seen {
+		return errors.New("student not found")
+	}
+	err = writer.WriteAll(records)
+	if err != nil {
+		mess := fmt.Sprintf("Cant write student to file: %v", err)
+		return errors.New(mess)
+	}
+	return nil
 }

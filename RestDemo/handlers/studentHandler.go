@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"RestDemo/helpers"
 	"RestDemo/models"
 	"RestDemo/repositories"
 	"encoding/json"
@@ -11,103 +12,121 @@ import (
 var repository = repositories.NewRepository(repositories.CsvRepository{
 	Path: "data/dane.csv",
 })
-var Students = repository.RepositoryHandler.Load()
 
 func GetStudents(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Wrong request", 400)
+	if !helpers.PrepareResponse(w, http.MethodGet, r.Method) {
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(&Students)
+	students, err := repository.RepositoryHandler.GetStudents()
 	if err != nil {
+		mess := fmt.Sprintf("Error in repository: %v", err)
+		http.Error(w, mess, 500)
+		return
+	}
+	err = json.NewEncoder(w).Encode(&students)
+	if err != nil {
+		http.Error(w, "Error parsing student", 404)
 		return
 	}
 }
 
 func GetStudent(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Wrong request", 400)
+	if !helpers.PrepareResponse(w, http.MethodGet, r.Method) {
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
+	students, err := repository.RepositoryHandler.GetStudents()
+	if err != nil {
+		mess := fmt.Sprintf("Error in repository: %v", err)
+		http.Error(w, mess, 500)
+		return
+	}
+	seen := false
+	var foundStudent models.Student
 	id := r.URL.Query().Get("id")
-	for _, student := range Students {
-		if student.Id == id {
-			err := json.NewEncoder(w).Encode(student)
-			if err != nil {
-				return
-			}
-			return
+	for _, student := range students {
+		if id == student.Id {
+			foundStudent = student
+			seen = true
+			break
 		}
 	}
-	http.Error(w, "Student do no exists", 401)
+	if !seen {
+		http.Error(w, "student not found", 500)
+		return
+	}
+	err = json.NewEncoder(w).Encode(&foundStudent)
+	if err != nil {
+		http.Error(w, "Error parsing student", 404)
+		return
+	}
 }
 
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodDelete {
-		http.Error(w, "Wrong request", 400)
+	if !helpers.PrepareResponse(w, http.MethodGet, r.Method) {
 		return
 	}
-	defer repository.RepositoryHandler.Save(Students)
-	id := r.URL.Query().Get("id")
-	for _, student := range Students {
-		if student.Id == id {
-			delete(Students, student.Id)
-			return
-		}
+	var oldStudent models.Student
+	err := json.NewDecoder(r.Body).Decode(&oldStudent)
+	if err != nil {
+		http.Error(w, "Error reading student", 404)
+		return
 	}
-	http.Error(w, "No such student", 400)
+	err = repository.RepositoryHandler.DeleteStudent(oldStudent)
+	if err != nil {
+		mess := fmt.Sprintf("Error in repository: %v", err)
+		http.Error(w, mess, 500)
+		return
+	}
+	err = json.NewEncoder(w).Encode(&oldStudent)
+	if err != nil {
+		http.Error(w, "Error parsing student", 404)
+		return
+	}
 }
 
 func CreateStudent(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Wrong request", 400)
+	if !helpers.PrepareResponse(w, http.MethodGet, r.Method) {
 		return
 	}
-	defer repository.RepositoryHandler.Save(Students)
-
 	var newStudent models.Student
-
-	if err := json.NewDecoder(r.Body).Decode(&newStudent); err != nil {
-		fmt.Println(err)
-		return
-	}
-	if _, ok := Students[newStudent.Id]; ok {
-		fmt.Println("Student already exists")
-		return
-	}
-	Students[newStudent.Id] = newStudent
-	_, err := fmt.Fprintf(w, "Created %v", newStudent)
+	err := json.NewDecoder(r.Body).Decode(&newStudent)
 	if err != nil {
+		http.Error(w, "Error reading student", 404)
+		return
+	}
+	err = repository.RepositoryHandler.CreateStudent(newStudent)
+	if err != nil {
+		mess := fmt.Sprintf("Error in repository: %v", err)
+		http.Error(w, mess, 500)
+		return
+	}
+	err = json.NewEncoder(w).Encode(&newStudent)
+	if err != nil {
+		http.Error(w, "Error parsing student", 404)
 		return
 	}
 }
 
 func UpdateStudent(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Wrong request", 400)
+	if r.Method != http.MethodPut {
+		http.Error(w, "Used wrong http method", 400)
 		return
 	}
-	defer repository.RepositoryHandler.Save(Students)
-
 	var newStudent models.Student
-
-	if err := json.NewDecoder(r.Body).Decode(&newStudent); err != nil {
-		fmt.Printf("error decoding json %v\n", err)
+	err := json.NewDecoder(r.Body).Decode(&newStudent)
+	if err != nil {
+		http.Error(w, "Error reading student", 404)
 		return
 	}
-
-	for id, student := range Students {
-		if newStudent.Id == id {
-			Students[id] = newStudent
-			_, err := fmt.Fprintf(w, "updated %v", student)
-			if err != nil {
-				return
-			}
-			return
-		}
+	err = repository.RepositoryHandler.UpdateStudent(newStudent)
+	if err != nil {
+		mess := fmt.Sprintf("Error in repository: %v", err)
+		http.Error(w, mess, 500)
+		return
 	}
-
-	http.Error(w, "No such student", 400)
+	err = json.NewEncoder(w).Encode(&newStudent)
+	if err != nil {
+		http.Error(w, "Error parsing student", 404)
+		return
+	}
 }
