@@ -14,7 +14,8 @@ type CsvRepository struct {
 }
 
 func (repository CsvRepository) GetStudents() ([]models.Student, error) {
-	students := helpers.CreateStudents(repository.Path)
+	records := helpers.ReadRecordsFromCSV(repository.Path)
+	students := helpers.CreateStudents(records)
 	if len(students) == 0 {
 		return make([]models.Student, 0), errors.New("students not found")
 	}
@@ -22,7 +23,7 @@ func (repository CsvRepository) GetStudents() ([]models.Student, error) {
 }
 
 func (repository CsvRepository) UpdateStudent(newStudent models.Student) error {
-	records := helpers.ReadRecords(repository.Path)
+	records := helpers.ReadRecordsFromCSV(repository.Path)
 
 	file, err := os.Create(repository.Path)
 	if err != nil {
@@ -82,7 +83,7 @@ func (repository CsvRepository) CreateStudent(newStudent models.Student) error {
 }
 
 func (repository CsvRepository) DeleteStudent(oldStudent models.Student) error {
-	records := helpers.ReadRecords(repository.Path)
+	records := helpers.ReadRecordsFromCSV(repository.Path)
 	file, err := os.Create(repository.Path)
 	if err != nil {
 		mess := fmt.Sprintf("Cant find file: %v", err)

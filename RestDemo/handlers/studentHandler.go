@@ -9,8 +9,12 @@ import (
 	"net/http"
 )
 
-var repository = repositories.NewRepository(repositories.CsvRepository{
-	Path: "data/dane.csv",
+//var repository = repositories.NewRepository(repositories.CsvRepository{
+//	Path: "data/dane.csv",
+//})
+
+var repository = repositories.NewRepository(repositories.PostgresRepository{
+	ConnString: "postgresql://pawel:passwd@localhost/student?sslmode=disable",
 })
 
 func GetStudents(w http.ResponseWriter, r *http.Request) {
@@ -62,7 +66,7 @@ func GetStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteStudent(w http.ResponseWriter, r *http.Request) {
-	if !helpers.PrepareResponse(w, http.MethodGet, r.Method) {
+	if !helpers.PrepareResponse(w, http.MethodDelete, r.Method) {
 		return
 	}
 	var oldStudent models.Student
@@ -85,7 +89,7 @@ func DeleteStudent(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateStudent(w http.ResponseWriter, r *http.Request) {
-	if !helpers.PrepareResponse(w, http.MethodGet, r.Method) {
+	if !helpers.PrepareResponse(w, http.MethodPost, r.Method) {
 		return
 	}
 	var newStudent models.Student
