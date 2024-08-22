@@ -27,6 +27,7 @@ func GetStudents(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, mess, 500)
 		return
 	}
+
 	err = json.NewEncoder(w).Encode(&students)
 	if err != nil {
 		http.Error(w, "Error parsing student", 404)
