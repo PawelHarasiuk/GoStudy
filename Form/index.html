@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .message {
+            padding: 10px;
+            margin: 5px;
+            background-color: #f3f3f3;
+        }
+
+        nav a {
+            color: #d64161;
+            font-size: 3em;
+            margin-left: 50px;
+            text-decoration: none;
+        }
+
+        body {
+            background-color: #ffdbc3;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/create"> Create</a>
+    <a href="#"> About</a>
+</nav>
+<hr>
+<h1> Message </h1>
+<nav>
+    {{range .}}
+    {{range $key, $value := .}}
+    <div class="message">
+        <h3>{{$key}}</h3>
+        <p>{{$value}}</p>
+    </div>
+    {{end}}
+    {{end}}
+</nav>
+</body>
+</html>
