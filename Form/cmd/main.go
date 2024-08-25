@@ -27,6 +27,7 @@ func registerRouts() {
 	// jak zrobic zeby nie bylo konfliktu miedzy sciezka / i /create
 	http.HandleFunc("/home", homeHandle)
 	http.HandleFunc("/create", createHandle)
+	http.HandleFunc("/delete", deleteMessage)
 }
 
 func homeHandle(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +36,7 @@ func homeHandle(w http.ResponseWriter, r *http.Request) {
 		slog.Error(err.Error())
 		return
 	}
+	fmt.Println(r.FormValue("Delete"))
 }
 
 func createHandle(w http.ResponseWriter, r *http.Request) {
@@ -48,10 +50,28 @@ func createHandle(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		fmt.Println("get")
 	case http.MethodPost:
-		fmt.Println(r.FormValue("message"))
-		fmt.Println(r.FormValue("content"))
+		title := r.FormValue("title")
+		content := r.FormValue("content")
+		if len(title) == 0 {
+			http.Error(w, "Title is empty", http.StatusBadRequest)
+		} else if len(content) == 0 {
+			http.Error(w, "Content is empty", http.StatusBadRequest)
+		} else {
+			messages = appendMessage(title, content)
+		}
 	default:
 		slog.Error("Wrong request method used in createHandle")
+	}
+}
+
+func deleteMessage(w http.ResponseWriter, r *http.Request) {
+	title := r.URL.Query().Get("title")
+	for i, message := range messages {
+		if _, ok := message[title]; ok {
+			messages = append(messages[:i], messages[i+1:]...)
+			w.WriteHeader(http.StatusOK)
+			break
+		}
 	}
 }
 
@@ -73,13 +93,13 @@ func loadHtml(w http.ResponseWriter, path string, data any) error {
 	return nil
 }
 
-func appendMessage(title, messageText string) []map[string]string {
+func appendMessage(title, content string) []map[string]string {
 	message := make(map[string]string)
-	message[title] = messageText
+	message[title] = content
 	return append(messages, message)
 }
 
 func initMessages() {
-	messages = appendMessage("Message One", "Message one content")
-	messages = appendMessage("Message Two", "Message two content")
+	messages = appendMessage("MessageOne", "Message one content")
+	messages = appendMessage("MessageTwo", "Message two content")
 }

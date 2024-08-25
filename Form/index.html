@@ -32,12 +32,32 @@
 <nav>
     {{range .}}
     {{range $key, $value := .}}
-    <div class="message">
+    <div class="message" data-key={{$key}}>
         <h3>{{$key}}</h3>
         <p>{{$value}}</p>
+        <button type=button onclick="deleteMessage('{{$key}}')">Delete</button>
     </div>
     {{end}}
     {{end}}
 </nav>
+<script>
+    function deleteMessage(key) {
+        let url = "http://localhost:8080/delete?title=" + encodeURIComponent(key)
+        fetch(url, {
+            method: "DELETE",
+        }).then(response => {
+            if (response.ok) {
+                document.querySelector(`[data-key='${key}']`).remove();
+                document.querySelector(`.message[data-key='${key}']`).remove();
+            } else {
+                console.error("Error")
+            }
+        })
+    }
+
+    function updateGui() {
+        document.getElementById("").remove()
+    }
+</script>
 </body>
 </html>
