@@ -4,6 +4,7 @@ import (
 	"TodoApp/repositories"
 	"TodoApp/types"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -15,7 +16,8 @@ var (
 		DriverName: "postgres",
 		ConnString: "postgresql://pawel:passwd@localhost/todo?sslmode=disable",
 	}
-	indexPath = "index.html"
+	indexPath  = "templates/index.html"
+	createPath = "templates/create.html"
 )
 
 // is it correct to mix endpoint with displaying template????
@@ -27,7 +29,7 @@ func GetTasks(w http.ResponseWriter, r *http.Request) {
 	tmpl := template.Must(template.ParseFiles(indexPath))
 	todos, err := rep.GetTasks()
 	if err != nil {
-		slog.Error(err.Error())
+		slog.Error(err.Error(), err)
 	}
 	err = tmpl.Execute(w, todos)
 	if err != nil {
@@ -41,6 +43,7 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	fmt.Println(id)
 	if err != nil {
 		slog.Error("Wrong id param in query")
 		return
@@ -54,6 +57,33 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateTask(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		tmpl := template.Must(template.ParseFiles(createPath))
+		err := tmpl.Execute(w, nil)
+		if err != nil {
+			slog.Error("Error parsing create file")
+			return
+		}
+	case http.MethodPost:
+		var newTask types.Todo
+		err := json.NewDecoder(r.Body).Decode(&newTask)
+		if err != nil {
+			slog.Error("Error parsing body: ", err)
+			return
+		}
+		err = rep.CreateTask(&newTask)
+		if err != nil {
+			slog.Error("Repository error: ", err)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	default:
+		slog.Error("Wrong request method")
+	}
+}
+
+func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
 		slog.Error("Wrong request method")
 		return
@@ -64,7 +94,7 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		slog.Error("Error parsing body: ", err)
 		return
 	}
-	err = rep.CreateTask(&newTask)
+	err = rep.UpdateTask(&newTask)
 	if err != nil {
 		slog.Error("Repository error: ", err)
 		return
@@ -102,7 +132,7 @@ func UnCompleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 	err = rep.UnCompleteTask(id)
 	if err != nil {
-		slog.Error("Repository error: ", err)
+		slog.Error("Repository error:", err)
 		return
 	}
 	w.WriteHeader(http.StatusOK)

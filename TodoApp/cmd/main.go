@@ -19,5 +19,6 @@ func registerRoutes() {
 	http.HandleFunc("/todo/create", api.CreateTask)
 	http.HandleFunc("/todo/delete", api.DeleteTask)
 	http.HandleFunc("/todo/complete", api.CompleteTask)
-	http.HandleFunc("/todo/complete", api.UnCompleteTask)
+	http.HandleFunc("/todo/uncompleted", api.UnCompleteTask)
+	http.HandleFunc("/todo/update", api.UpdateTask)
 }

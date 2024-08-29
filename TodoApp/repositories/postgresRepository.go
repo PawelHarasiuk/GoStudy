@@ -34,15 +34,23 @@ func (rep *PostgresRepository) GetTasks() ([]types.Todo, error) {
 		}
 		todos = append(todos, todo)
 	}
+
 	return todos, nil
 }
 
 // TODO assert id is unique and user cant add it, it happens auto
 func (rep *PostgresRepository) CreateTask(newTask *types.Todo) error {
-
 	query := "INSERT INTO todos (id, title, description, dueDate, isCompleted) (VALUES($1, $2, $3, $4, $5));"
-	//err := rep.executeQuery(query, newTask.Id, newTask.Title, newTask.Description, newTask.DueDate, newTask.IsCompleted)
 	err := rep.executeQuery(query, newTask.Id, newTask.Title, newTask.Description, time.Time{}, newTask.IsCompleted)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (rep *PostgresRepository) UpdateTask(newTask *types.Todo) error {
+	query := "UPDATE todos SET title=$1, description=$2, dueTime=$3, isCompleted=$4 WHERE id=$5;"
+	err := rep.executeQuery(query, newTask.Title, newTask.Description, time.Time{}, newTask.IsCompleted, newTask.Id)
 	if err != nil {
 		return err
 	}

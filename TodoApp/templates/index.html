@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<nav>
+    <a href="http://localhost:8080/todo">Home</a>
+    <a href="http://localhost:8080/todo">About</a>
+</nav>
+<hr>
+{{range $i, $item := .}}
+<div class="tasks" data-key="{{$i}}">
+    <label for="title{{$i}}"></label>
+    <textarea name="title{{$i}}" id="title{{$i}}" cols="7" rows="6">{{$item.Title}}</textarea>
+    <br>
+
+    <label for="description{{$i}}"></label>
+    <textarea name="description{{$i}}" id="description{{$i}}" cols="40" rows="8">{{$item.Description}}
+    </textarea>
+
+    <br>
+
+    <label for="dueDate{{$i}}">Due Date:</label>
+    <input type="date" name="dueDate{{$i}}" id="dueDate{{$i}}" placeholder="{{$item.DueDate}}">
+    <br>
+
+    <label for="completed{{$i}}"></label>
+    <input type="checkbox" name="completed{{$i}}" id="completed{{$i}}">
+    <br>
+
+    <nav>
+        <button type="button" onclick="deleteTask('{{$i}}')">Delete</button>
+        <button type="button" onclick="updateTask">Update</button>
+    </nav>
+    <script>
+        document.getElementById("completed{{$i}}").checked = {{$item.IsCompleted}}
+    </script>
+</div>
+{{end}}
+<button type="button" onclick="location.href = 'todo/create'">New Task</button>
+
+<script>
+    function deleteTask(key) {
+        let url = "http://localhost:8080/todo/delete?id=" + encodeURIComponent(key)
+        fetch(url, {
+            method: "delete"
+        }).then(response => {
+            if (response.ok) {
+               document.querySelector(`[data-key='${key}']`).remove();
+               document.querySelector(`.tasks[data-key='${key}']`).remove();
+            } else {
+               console.error("Error deleting task")
+            }
+        });
+    }
+
+    function updateTask() {
+        console.log("mock task")
+    }
+
+    function markCompleted(isCompleted) {
+            document.getElementById("completed").checked = true
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<nav>
+    <a href="http://localhost:8080/todo">Home</a>
+    <a href="http://localhost:8080/todo">About</a>
+</nav>
+<hr>
+<form action="/todo" method="get" id="newTask">
+    <label for="title"> Title: </label>
+    <textarea name="title" id="title" cols="30" rows="10" required></textarea>
+
+    <label for="description"> Description: </label>
+    <textarea name="description" id="description" cols="30" rows="10" required></textarea>
+
+    <label for="dueDate"> Due Date: </label>
+    <input type="date" id="dueDate" required>
+
+    <button type="submit" onclick="createTask()">Create new Task</button>
+</form>
+
+<script>
+    function createTask() {
+        const newTask = {
+            id: 4,
+            title: document.getElementById("title").value,
+            description: document.getElementById("description").value,
+            dueDate: "2006-01-02T15:04:05Z"
+        };
+        fetch("http://localhost:8080/todo/create", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newTask)
+        }).then(response => {
+            response.json()
+        }).catch((error) => {
+            console.error("Error: ", error)
+        });
+    }
+</script>
+
+</body>
+</html>
