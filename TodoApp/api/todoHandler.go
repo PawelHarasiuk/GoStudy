@@ -4,7 +4,6 @@ import (
 	"TodoApp/repositories"
 	"TodoApp/types"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -20,7 +19,6 @@ var (
 	createPath = "templates/create.html"
 )
 
-// is it correct to mix endpoint with displaying template????
 func GetTasks(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		slog.Error("Wrong request method")
@@ -43,7 +41,6 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id, err := strconv.Atoi(r.URL.Query().Get("id"))
-	fmt.Println(id)
 	if err != nil {
 		slog.Error("Wrong id param in query")
 		return

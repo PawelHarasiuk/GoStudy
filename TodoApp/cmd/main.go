@@ -15,10 +15,12 @@ func main() {
 }
 
 func registerRoutes() {
+	fs := http.FileServer(http.Dir("templates"))
 	http.HandleFunc("/todo", api.GetTasks)
 	http.HandleFunc("/todo/create", api.CreateTask)
 	http.HandleFunc("/todo/delete", api.DeleteTask)
 	http.HandleFunc("/todo/complete", api.CompleteTask)
 	http.HandleFunc("/todo/uncompleted", api.UnCompleteTask)
 	http.HandleFunc("/todo/update", api.UpdateTask)
+	http.Handle("/templates/", http.StripPrefix("/templates/", fs))
 }

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/templates/style.css">
+    <script src="/templates/scripts.js"></script>
 </head>
 <body>
 <nav>
@@ -22,28 +24,5 @@
 
     <button type="submit" onclick="createTask()">Create new Task</button>
 </form>
-
-<script>
-    function createTask() {
-        const newTask = {
-            id: 4,
-            title: document.getElementById("title").value,
-            description: document.getElementById("description").value,
-            dueDate: "2006-01-02T15:04:05Z"
-        };
-        fetch("http://localhost:8080/todo/create", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(newTask)
-        }).then(response => {
-            response.json()
-        }).catch((error) => {
-            console.error("Error: ", error)
-        });
-    }
-</script>
-
 </body>
 </html>

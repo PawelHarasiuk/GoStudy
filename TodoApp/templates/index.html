@@ -1,68 +1,39 @@
 <!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <link rel="stylesheet" href="/templates/style.css">
+    <script src="/templates/scripts.js" defer></script>
 </head>
 <body>
 <nav>
     <a href="http://localhost:8080/todo">Home</a>
     <a href="http://localhost:8080/todo">About</a>
+    <a href="http://localhost:8080/todo/create">Create</a>
 </nav>
 <hr>
 {{range $i, $item := .}}
-<div class="tasks" data-key="{{$i}}">
-    <label for="title{{$i}}"></label>
-    <textarea name="title{{$i}}" id="title{{$i}}" cols="7" rows="6">{{$item.Title}}</textarea>
-    <br>
-
-    <label for="description{{$i}}"></label>
-    <textarea name="description{{$i}}" id="description{{$i}}" cols="40" rows="8">{{$item.Description}}
+<div class="tasks" data-key="{{$item.Id}}">
+    <label for="title{{$item.Id}}"></label>
+    <textarea name="title{{$item.Id}}" id="title{{$item.Id}}" cols="7" rows="6">{{$item.Title}}</textarea>
+    <label for="description{{$item.Id}}"></label>
+    <textarea name="description{{$item.Id}}" id="description{{$item.Id}}" cols="40" rows="8">{{$item.Description}}
     </textarea>
-
-    <br>
-
-    <label for="dueDate{{$i}}">Due Date:</label>
-    <input type="date" name="dueDate{{$i}}" id="dueDate{{$i}}" placeholder="{{$item.DueDate}}">
-    <br>
-
-    <label for="completed{{$i}}"></label>
-    <input type="checkbox" name="completed{{$i}}" id="completed{{$i}}">
-    <br>
-
+    <label for="dueDate{{$item.Id}}">Due Date:</label>
+    <input type="date" name="dueDate{{$item.Id}}" id="dueDate{{$item.Id}}" placeholder="{{$item.DueDate}}">
+    <label for="completed{{$item.Id}}">Completed</label>
+    <input type="checkbox" name="completed{{$item.Id}}" id="completed{{$item.Id}}">
     <nav>
-        <button type="button" onclick="deleteTask('{{$i}}')">Delete</button>
-        <button type="button" onclick="updateTask">Update</button>
+        <button type="button" onclick="deleteTask('{{$item.Id}}')">Delete</button>
+        <button type="button" onclick="updateTask()">Update</button>
     </nav>
+    <h1>{{$item.IsCompleted}}</h1>
     <script>
-        document.getElementById("completed{{$i}}").checked = {{$item.IsCompleted}}
+        document.getElementById("completed{{$item.Id}}").checked = {{if $item.IsCompleted}}true{{else}}false{{end}};
     </script>
 </div>
 {{end}}
-<button type="button" onclick="location.href = 'todo/create'">New Task</button>
 
-<script>
-    function deleteTask(key) {
-        let url = "http://localhost:8080/todo/delete?id=" + encodeURIComponent(key)
-        fetch(url, {
-            method: "delete"
-        }).then(response => {
-            if (response.ok) {
-               document.querySelector(`[data-key='${key}']`).remove();
-               document.querySelector(`.tasks[data-key='${key}']`).remove();
-            } else {
-               console.error("Error deleting task")
-            }
-        });
-    }
-
-    function updateTask() {
-        console.log("mock task")
-    }
-
-    function markCompleted(isCompleted) {
-            document.getElementById("completed").checked = true
-    }
-</script>
 </body>
 </html>
