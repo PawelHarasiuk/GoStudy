@@ -1,17 +1,23 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"net/http"
 )
 
-type MyEvent struct {
-	mess string
-}
+func handleRequest(context context.Context, event events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	resp := event.QueryStringParameters["hello"]
+	if resp == "" {
+		resp = "World"
+	}
 
-func handleRequest() (string, error) {
-	fmt.Println("hi")
-	return "Hello from Lambda", nil
+	return events.APIGatewayProxyResponse{
+		StatusCode: http.StatusOK,
+		Body:       fmt.Sprintf("Hello %v", resp),
+	}, nil
 }
 
 func main() {
