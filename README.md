@@ -31,29 +31,25 @@ I try now to use this knowledge, for something bigger and actually finish it, fo
 - https://github.com/PawelHarasiuk/EmailExchangeRate
 
 ### <a href="https://github.com/PawelHarasiuk/GoStudy/tree/main/GoCrawler">GoCrawler</a>
-- Why
-  After learning basic syntax in TourOfGo I wanted to write code so I jumped into recreating things from my collage. So this is basic web crawler I've done in C# previously. It enters website and looks for all emails on page.
+- After learning basic syntax in TourOfGo I wanted to write code so I jumped into recreating things from my collage. So this is basic web crawler I've done in C# previously. It enters website and looks for all emails on page.
 ### UniSys
-- Why
+- 
   Again exercise from my C# course in collage. Program takes csv as an input, clean it and return in json format. It helped me play around with files and become more confident with syntax.
 ### simpleServer
-- Why
+- 
 ### moviesServer
-- Why
+- 
 ### RestDemo
-- Why
+- 
 ### TodoApp
-- Why
+- 
 ### TemplatesDemo
-- Why
+- 
 ### Form
-- Why
+- 
 ### LambdaTest
-- Why
-  I started learning AWS Lambda, additionally I started learning docker and now it is pretty natural for me similar to git
+- I started learning AWS Lambda, additionally I started learning docker and now it is pretty natural for me similar to git
 ### ConnectToS3
-- Why
-  I've learned reading and writing to file stored on aws S3
+- I've learned reading and writing to file stored on aws S3
 ### StaticWebsite
-- Why
-  I wanted to test hosting static website on aws S3 for my other project. Additionally i managed to send request from HTML and javascript to aws lambda go backend, and communicate between those two. PS turned out I did not care about CORS because aws allows seemless communication between lambda and S3
+- I wanted to test hosting static website on aws S3 for my other project. Additionally i managed to send request from HTML and javascript to aws lambda go backend, and communicate between those two. PS turned out I did not care about CORS because aws allows seemless communication between lambda and S3
