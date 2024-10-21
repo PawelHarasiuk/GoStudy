@@ -3,8 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <script src="scripts.js"></script>
 </head>
 <body>
+    <h1>Example body</h1>
+    <form action="https://5rrn370t09.execute-api.eu-central-1.amazonaws.com/default/test-cors" method="post" id="emailForm">
+        <label for="email">Email input</label><input type="text" name="email" id="email">
 
+        <button type="submit" name="action" value="create">Add</button>
+        <button type="submit" name="action" value="delete">Remove</button>
+    </form>
 </body>
 </html>
