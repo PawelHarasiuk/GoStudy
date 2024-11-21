@@ -27,7 +27,7 @@ Which might be good for short term but really damaging for long term career.**
 
 ## Projects 
 Most projects here are just demos, because I used them just to explore technologies or to better understand how to work with them.
-I try now to use this knowledge, for something bigger and actually finish it, for example here: 
+I try now to use this knowledge, for something bigger and actually finish it e.g. here: 
 - <a href="https://github.com/PawelHarasiuk/CurrencyNewsletter">Currency Newsletter</a> 
 
 ### <a href="https://github.com/PawelHarasiuk/GoStudy/tree/main/GoCrawler">GoCrawler</a>
