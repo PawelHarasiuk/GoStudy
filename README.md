@@ -10,8 +10,8 @@ Which might be good for short term but really damaging for long term career.**
 
 ## Techonologies explored 
 - Go
-  - gin
-  - gorilla
+  - Gin
+  - Gorilla
 - Sql
   - Sqlite
   - Postgres
